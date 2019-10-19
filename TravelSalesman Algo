@@ -1,0 +1,94 @@
+
+# coding: utf-8
+
+# In[14]:
+import random
+from sklearn import datasets
+import numpy as np
+
+dist = np.array([[0,230,400,520,88],
+                [200,0,380,270,900],
+                [210,350,0,400,500],
+                [290,350,290,0,800],
+                [1000,20,389,400,0]])
+print(dist)
+
+#generate random routes
+
+import random
+l1 = [0,1,2,3,4]
+samples = 8
+population  =np.empty((samples,len(l1)),dtype = np.int32)
+for i in range(samples):
+    random.shuffle(l1)
+    population[i,:]=l1
+print(population)
+
+
+# In[15]:
+
+
+#Checking the fitness
+def fitness(distance,population):
+    fitness =[]
+    for i in range(population.shape[0]):
+        sum =0
+        for j in range(population.shape[1]-1):
+            sum+=distance[population[i,j],population[i,j+1]]
+        fitness.append(sum)
+        print(population[i,:],sum)
+    return(fitness)
+fit = fitness(dist,population)
+print(fit)
+
+
+# In[16]:
+
+
+def selection(population,fitness,no_of_parents):
+    parents = np.empty((no_of_parents,population.shape[1]),dtype=np.int32)
+    for i in range(no_of_parents):
+        index = np.argmin(fitness)
+        parents[i,:] = population[index,:]
+        fitness[index] = 9999999
+    return parents
+select_parents = 4
+parents = selection(population,fit,select_parents)
+print(parents)
+    
+
+
+# In[19]:
+
+
+def crossover(parents,offspring_size):
+    print(parents)
+    offspring = np.empty(offspring_size)
+    for k in range(offspring_size[0]):
+        #parent1
+        parent1_index = k%offspring_size[0]
+        #parent2
+        parent2_index = (k+1)%offspring_size[0]
+        #select a portion from parent 1 and put it in ofspring
+        offspring[k,0:2] = parents[parent1_index,0:2]
+        j=2
+        #select other from parent 2 such that the cities do not repeat
+        for i in range(offspring_size[1]):
+            if parents[parent2_index,i] in offspring[k,:]:
+                continue
+            else:
+                offspring[k,j] = parents[parent2_index,i]
+                j = j+1
+    return offspring
+offspring_size = (samples-parents.shape[0],parents.shape[1])
+offspring = crossover(parents,offspring_size)
+print(offspring)
+
+
+# In[26]:
+
+
+from sklearn import datasets
+iris =datasets.load_iris()
+print(iris)
+
